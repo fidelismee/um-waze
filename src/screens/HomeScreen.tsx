@@ -1,7 +1,125 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-export const HomeScreen: React.FC = () => (
-  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-    <Text>Home</Text>
-  </View>
-);
+import React, { useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
+import { SearchBar } from '../components/SearchBar';
+import { CategoryChip } from '../components/CategoryChip';
+import { SectionCard } from '../components/SectionCard';
+import { UpcomingClassCard } from '../components/UpcomingClassCard';
+import { UPCOMING_CLASS } from '../data/mockData';
+import { colors, spacing } from '../theme';
+import { TabParamList } from '../navigation/TabNavigator';
+
+type HomeNavProp = BottomTabNavigationProp<TabParamList, 'Home'>;
+
+const CATEGORIES: Array<{ id: string; label: string; icon: any }> = [
+  { id: 'cafe', label: 'CAFE', icon: 'cafe-outline' },
+  { id: 'lobby', label: 'LOBBY', icon: 'business-outline' },
+  { id: 'surau', label: 'SURAU', icon: 'moon-outline' },
+  { id: 'library', label: 'LIBRARY', icon: 'library-outline' },
+];
+
+export const HomeScreen: React.FC = () => {
+  const navigation = useNavigation<HomeNavProp>();
+  const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <View style={styles.logo}>
+            <Ionicons name="school" size={22} color={colors.primary} />
+            <Text style={styles.logoText}>UM FSKTM Navigator</Text>
+          </View>
+          <Ionicons name="person-circle-outline" size={28} color={colors.primary} />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.greeting}>Good morning, Navigator</Text>
+          <Text style={styles.subGreeting}>Where to in FSKTM today?</Text>
+        </View>
+
+        <View style={styles.section}>
+          <SearchBar
+            placeholder="Search rooms, labs, or staff..."
+            value={search}
+            onChangeText={setSearch}
+            showQR
+          />
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chips}
+        >
+          {CATEGORIES.map(cat => (
+            <CategoryChip
+              key={cat.id}
+              label={cat.label}
+              icon={cat.icon}
+              active={activeCategory === cat.id}
+              onPress={() => setActiveCategory(p => (p === cat.id ? null : cat.id))}
+            />
+          ))}
+        </ScrollView>
+
+        <View style={styles.section}>
+          <UpcomingClassCard
+            courseName={UPCOMING_CLASS.name}
+            location={UPCOMING_CLASS.location}
+            time={UPCOMING_CLASS.time}
+            startsIn={UPCOMING_CLASS.startsIn}
+            onNavigate={() =>
+              navigation.navigate('Map', { destinationId: UPCOMING_CLASS.destinationId })
+            }
+          />
+        </View>
+
+        <View style={[styles.section, styles.sectionList]}>
+          <SectionCard
+            title="Computer Labs"
+            description="Find open workstations across all blocks."
+            icon="desktop-outline"
+            onPress={() => navigation.navigate('Search')}
+          />
+          <SectionCard
+            title="Lecture Halls"
+            description="DK1, DK2, and other main lecture spaces."
+            icon="school-outline"
+            onPress={() => navigation.navigate('Map')}
+          />
+          <SectionCard
+            title="Staff Offices"
+            description="Locate lecturers, admin, and support staff."
+            icon="briefcase-outline"
+            arrowColor={colors.primary}
+            onPress={() => navigation.navigate('Directory')}
+          />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.background },
+  scroll: { flex: 1 },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
+  },
+  logo: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  logoText: { fontSize: 16, fontWeight: '700', color: colors.primary },
+  section: { paddingHorizontal: spacing.md, marginBottom: spacing.md },
+  greeting: { fontSize: 26, fontWeight: '700', color: colors.textPrimary },
+  subGreeting: { fontSize: 15, color: colors.textSecondary, marginTop: 4 },
+  chips: { paddingHorizontal: spacing.md, gap: spacing.sm, paddingBottom: spacing.md },
+  sectionList: { gap: spacing.sm, paddingBottom: spacing.xl },
+});
