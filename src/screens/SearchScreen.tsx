@@ -7,7 +7,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { SearchBar } from '../components/SearchBar';
@@ -18,12 +18,14 @@ import { colors, spacing, radius } from '../theme';
 import { TabParamList } from '../navigation/TabNavigator';
 
 type SearchNavProp = BottomTabNavigationProp<TabParamList, 'Search'>;
+type SearchRouteProp = RouteProp<TabParamList, 'Search'>;
 
 const FILTERS = ['All', 'Rooms', 'Labs', 'Staff', 'Facilities'];
 
 export const SearchScreen: React.FC = () => {
   const navigation = useNavigation<SearchNavProp>();
-  const [query, setQuery] = useState('');
+  const route = useRoute<SearchRouteProp>();
+  const [query, setQuery] = useState(route.params?.initialQuery ?? '');
   const [activeFilter, setActiveFilter] = useState('All');
 
   const results = useMemo(

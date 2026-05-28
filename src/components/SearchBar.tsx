@@ -7,6 +7,7 @@ interface SearchBarProps {
   placeholder?: string;
   value: string;
   onChangeText: (text: string) => void;
+  onSubmitEditing?: () => void;
   onMicPress?: () => void;
   showQR?: boolean;
 }
@@ -15,6 +16,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   placeholder = 'Search...',
   value,
   onChangeText,
+  onSubmitEditing,
   onMicPress,
   showQR = false,
 }) => (
@@ -26,6 +28,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       placeholderTextColor={colors.textSecondary}
       value={value}
       onChangeText={onChangeText}
+      onSubmitEditing={onSubmitEditing}
+      returnKeyType="search"
     />
     {onMicPress && (
       <TouchableOpacity onPress={onMicPress} accessibilityLabel="mic">

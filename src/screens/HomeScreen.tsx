@@ -13,17 +13,31 @@ import { TabParamList } from '../navigation/TabNavigator';
 
 type HomeNavProp = BottomTabNavigationProp<TabParamList, 'Home'>;
 
-const CATEGORIES: Array<{ id: string; label: string; icon: any }> = [
-  { id: 'cafe', label: 'CAFE', icon: 'cafe-outline' },
-  { id: 'lobby', label: 'LOBBY', icon: 'business-outline' },
-  { id: 'surau', label: 'SURAU', icon: 'moon-outline' },
-  { id: 'library', label: 'LIBRARY', icon: 'library-outline' },
+const CATEGORIES: Array<{ id: string; label: string; icon: any; destinationId: string }> = [
+  { id: 'cafe',    label: 'CAFE',    icon: 'cafe-outline',     destinationId: 'l6' },
+  { id: 'lobby',   label: 'LOBBY',   icon: 'business-outline', destinationId: 'l5' },
+  { id: 'surau',   label: 'SURAU',   icon: 'moon-outline',     destinationId: 'l7' },
+  { id: 'library', label: 'LIBRARY', icon: 'library-outline',  destinationId: 'l8' },
 ];
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeNavProp>();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  const handleSearchSubmit = () => {
+    const q = search.trim();
+    navigation.navigate('Search', { initialQuery: q });
+    setSearch('');
+  };
+
+  const handleCategoryPress = (cat: typeof CATEGORIES[0]) => {
+    const next = activeCategory === cat.id ? null : cat.id;
+    setActiveCategory(next);
+    if (next) {
+      navigation.navigate('Map', { destinationId: cat.destinationId });
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -46,6 +60,7 @@ export const HomeScreen: React.FC = () => {
             placeholder="Search rooms, labs, or staff..."
             value={search}
             onChangeText={setSearch}
+            onSubmitEditing={handleSearchSubmit}
             showQR
           />
         </View>
@@ -61,7 +76,7 @@ export const HomeScreen: React.FC = () => {
               label={cat.label}
               icon={cat.icon}
               active={activeCategory === cat.id}
-              onPress={() => setActiveCategory(p => (p === cat.id ? null : cat.id))}
+              onPress={() => handleCategoryPress(cat)}
             />
           ))}
         </ScrollView>
@@ -83,13 +98,13 @@ export const HomeScreen: React.FC = () => {
             title="Computer Labs"
             description="Find open workstations across all blocks."
             icon="desktop-outline"
-            onPress={() => navigation.navigate('Search')}
+            onPress={() => navigation.navigate('Search', { initialQuery: 'lab' })}
           />
           <SectionCard
             title="Lecture Halls"
             description="DK1, DK2, and other main lecture spaces."
             icon="school-outline"
-            onPress={() => navigation.navigate('Map')}
+            onPress={() => navigation.navigate('Search', { initialQuery: 'lecture' })}
           />
           <SectionCard
             title="Staff Offices"

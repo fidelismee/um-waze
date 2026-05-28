@@ -10,7 +10,7 @@ import { colors } from '../theme';
 export type TabParamList = {
   Home: undefined;
   Map: { destinationId?: string } | undefined;
-  Search: undefined;
+  Search: { initialQuery?: string } | undefined;
   Directory: undefined;
 };
 
